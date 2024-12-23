@@ -1,0 +1,634 @@
+#include <iostream>
+using namespace std;
+
+struct Node {
+    int key;
+    Node* left;
+    Node* right;
+    int height;
+};
+
+int getHeight(Node* node) {
+    if (node == NULL)
+        return 0;
+    return node->height;
+}
+
+int getBalanceFactor(Node* node) {
+    if (node == NULL)
+        return 0;
+    return getHeight(node->left) - getHeight(node->right);
+}
+
+Node* rightRotate(Node* y) {
+    Node* x = y->left;
+    Node* T2 = x->right;
+
+    x->right = y;
+    y->left = T2;
+
+    y->height = max(getHeight(y->left), getHeight(y->right)) + 1;
+    x->height = max(getHeight(x->left), getHeight(x->right)) + 1;
+
+    return x;
+}
+
+Node* leftRotate(Node* x) {
+    Node* y = x->right;
+    Node* T2 = y->left;
+
+    y->left = x;
+    x->right = T2;
+
+    x->height = max(getHeight(x->left), getHeight(x->right)) + 1;
+    y->height = max(getHeight(y->left), getHeight(y->right)) + 1;
+
+    return y;
+}
+
+Node* insert(Node* node, int key) {
+    if (node == NULL) {
+        Node* newNode = new Node;
+        newNode->key = key;
+        newNode->left = NULL;
+        newNode->right = NULL;
+        newNode->height = 1;
+        return newNode;
+    }
+
+    if (key < node->key)
+        node->left = insert(node->left, key);
+    else if (key > node->key)
+        node->right = insert(node->right, key);
+    else
+        return node;
+
+    node->height = 1 + max(getHeight(node->left), getHeight(node->right));
+
+    int balance = getBalanceFactor(node);
+
+    if (balance > 1 && key < node->left->key)
+        return rightRotate(node);
+
+    if (balance < -1 && key > node->right->key)
+        return leftRotate(node);
+
+    if (balance > 1 && key > node->left->key) {
+        node->left = leftRotate(node->left);
+        return rightRotate(node);
+    }
+
+    if (balance < -1 && key < node->right->key) {
+        node->right = rightRotate(node->right);
+        return leftRotate(node);
+    }
+
+    return node;
+}
+
+Node* findMinNode(Node* node) {
+    Node* current = node;
+    while (current->left != NULL)
+        current = current->left;
+    return current;
+}
+
+Node* deleteNode(Node* root, int key) {
+    if (root == NULL)
+        return root;
+
+    if (key < root->key)
+        root->left = deleteNode(root->left, key);
+
+    else if (key > root->key)
+        root->right = deleteNode(root->right, key);
+
+    else {
+        if ((root->left == NULL) || (root->right == NULL)) {
+            Node* temp = root->left ? root->left : root->right;
+
+            if (temp == NULL) {
+                temp = root;
+                root = NULL;
+            } else
+                *root = *temp;
+            free(temp);
+        } else {
+            Node* temp = findMinNode(root->right);
+            root->key = temp->key;
+            root->right = deleteNode(root->right, temp->key);
+        }
+    }
+
+    if (root == NULL)
+        return root;
+
+    root->height = 1 + max(getHeight(root->left), getHeight(root->right));
+
+    int balance = getBalanceFactor(root);
+
+    if (balance > 1 && getBalanceFactor(root->left) >= 0)
+        return rightRotate(root);
+
+    if (balance > 1 && getBalanceFactor(root->left) < 0) {
+        root->left = leftRotate(root->left);
+        return rightRotate(root);
+    }
+
+    if (balance < -1 && getBalanceFactor(root->right) <= 0)
+        return leftRotate(root);
+
+    if (balance < -1 && getBalanceFactor(root->right) > 0) {
+        root->right = rightRotate(root->right);
+        return leftRotate(root);
+    }
+
+    return root;
+}
+
+void inorderTraversal(Node* root) {
+    if (root != NULL) {
+        inorderTraversal(root->left);
+        cout << root->key << " ";
+        inorderTraversal(root->right);
+    }
+}
+
+int main() {
+    Node* root = NULL;
+
+    root = insert(root, 5);
+    root = insert(root, 3);
+    root = insert(root, 10);
+    root = insert(root, 2);
+    root = insert(root, 4);
+    root = insert(root, 7);
+    root = insert(root, 11);
+    root = insert(root, 1);
+    root = insert(root, 8);
+    root = insert(root, 9);
+    root = insert(root, 12);
+
+    cout << "Inorder traversal of the AVL tree: ";
+    inorderTraversal(root);
+    cout << endl;
+
+    root = deleteNode(root, 8);
+
+    cout << "Inorder traversal of the AVL tree after deleting node 8: ";
+    inorderTraversal(root);
+    cout << endl;
+
+    return 0;
+}
+
+
+
+
+
+
+BST////
+
+//C++ Program starts
+#include<iostream>
+using namespace std;
+
+struct node{
+int data;
+node* left;
+node* right;
+
+node(int d){
+data=d;
+left=NULL;
+right=NULL;
+}
+};
+
+node* bst_insert(node * root, int d){
+    if(root==NULL){
+        return new node(d);
+    }
+
+if(d<root->data){
+root->left=bst_insert(root->left,d);
+}
+
+else if(d>root->data){
+root->right=bst_insert(root->right,d);
+}
+
+return root;
+}
+
+void preorder(node* root){
+    if(root==NULL){
+        return;
+    }
+    cout<<root->data<<" ";
+    preorder(root->left);
+    preorder(root->right);
+}
+
+void inorder(node* root){
+    if(root==NULL){
+        return;
+    }
+    inorder(root->left);
+     cout<<root->data<<" ";
+    inorder(root->right);
+}
+
+
+void postorder(node* root){
+    if(root==NULL){
+        return;
+    }
+    postorder(root->left);
+    postorder(root->right);
+     cout<<root->data<<" ";
+}
+
+node* find_min(node* root){
+    while(root->left!=NULL){
+        root=root->left;
+    }
+     return root;
+}
+
+  node * recursiveSearch(node * r, int d) {
+        if (r == NULL || r->data == d)
+            return r; // Base case: found the value or reached the end
+
+        if (d < r->data)
+            return recursiveSearch(r->left, d); // Search in the left subtree
+
+        return recursiveSearch(r->right, d); // Search in the right subtree
+    }
+
+
+    node* deletenode(node* root, int v){
+        if(root==NULL){
+            return root;
+        }
+
+        else if(v<root->data){
+            root->left=deletenode(root->left,v);
+        }
+        else if(v<root->data){
+            root->right=deletenode(root->right,v);
+        }
+        else{
+            if(root->left==NULL){
+                node* temp=root->right;
+                delete root;
+                return temp;
+            }
+
+            else if(root->right==NULL){
+                node* temp=deletenode(root->left,v);
+                delete root;
+                return temp;
+            }
+node* temp= find_min(root->right);
+root->data=temp->data;
+root->right=deletenode(root->right,temp->data);
+        }
+return root;
+    }
+
+int main()
+{
+int s;
+node*ss=nullptr;
+node * root=NULL;
+
+root=bst_insert(root,5);
+root=bst_insert(root,3);
+root=bst_insert(root,9);
+root=bst_insert(root,1);
+root=bst_insert(root,4);
+root=bst_insert(root,8);
+root=bst_insert(root,10);
+
+cout<<"Inorder Traversal (ascending oreder:)"<<endl;
+inorder(root);
+
+cout<<endl;
+
+cout<<"Minimum data in BST: "<<endl;
+node* min=find_min(root);
+cout<<min->data;
+
+cout<<"\n";
+cout<<"Enter data to search :";
+cin>>s;
+
+ss=recursiveSearch(root,s);
+if(ss==nullptr){
+    cout<<"Not found!";
+}
+else{
+    cout<<s <<" Found";
+}
+
+deletenode(root,5);
+
+cout<<"After deletion: ";
+inorder(root);
+
+
+return 0;
+}
+
+
+BST 2
+
+// Tree - Binery Search Tree
+#include <iostream>
+using namespace std;
+
+// Node structure
+struct Node {
+    int data;
+    Node* left;
+    Node* right;
+
+    Node(int value) : data(value), left(NULL), right(NULL) {}
+};
+
+// Insert a node into the BST
+Node* insert(Node* root, int value) {
+    if (root == NULL) return new Node(value);
+
+    if (value < root->data)
+        root->left = insert(root->left, value);
+    else if (value > root->data)
+        root->right = insert(root->right, value);
+
+    return root;
+}
+
+// Find the minimum value node in the BST
+Node* findMin(Node* root) {
+    while (root->left != NULL)
+        root = root->left;
+    return root;
+}
+
+// Delete a node from the BST
+Node* deleteNode(Node* root, int value) {
+    if (root == NULL) return root;
+
+    if (value < root->data)
+        root->left = deleteNode(root->left, value);
+    else if (value > root->data)
+        root->right = deleteNode(root->right, value);
+    else {
+        // Node with only one child or no child
+        if (root->left == NULL) {
+            Node* temp = root->right;
+            delete root;
+            return temp;
+        } else if (root->right == NULL) {
+            Node* temp = root->left;
+            delete root;
+            return temp;
+        }
+
+        // Node with two children
+        Node* temp = findMin(root->right);
+        root->data = temp->data;
+        root->right = deleteNode(root->right, temp->data);
+    }
+    return root;
+}
+
+// Pre-order Traversal
+void preOrderTraversal(Node* root) {
+    if (root == NULL) return;
+    cout << root->data << " ";
+    preOrderTraversal(root->left);
+    preOrderTraversal(root->right);
+}
+
+// In-order Traversal
+void inOrderTraversal(Node* root) {
+    if (root == NULL) return;
+    inOrderTraversal(root->left);
+    cout << root->data << " ";
+    inOrderTraversal(root->right);
+}
+
+// Post-order Traversal
+void postOrderTraversal(Node* root) {
+    if (root == NULL) return;
+    postOrderTraversal(root->left);
+    postOrderTraversal(root->right);
+    cout << root->data << " ";
+}
+
+// Example usage
+int main() {
+    Node* root = NULL;
+
+    root = insert(root, 50);
+    root = insert(root, 50);
+    root = insert(root, 30);
+    root = insert(root, 70);
+    root = insert(root, 20);
+    root = insert(root, 40);
+    root = insert(root, 40);
+    root = insert(root, 60);
+    root = insert(root, 80);
+
+    cout << "In-order Traversal: ";
+    inOrderTraversal(root);
+    cout << endl;
+    cout << "Pre-order Traversal: ";
+    preOrderTraversal(root);
+    cout << endl;
+    cout << "Post-order Traversal: ";
+    postOrderTraversal(root);
+    cout << endl;
+
+   deleteNode(root, 50);
+
+   cout << "In-order Traversal after deletion: ";
+   inOrderTraversal(root);
+   cout << endl;
+
+    return 0;
+}
+
+
+
+
+leaf count///
+
+//C++ Program starts
+#include<iostream>
+using namespace std;
+
+struct node{
+int data;
+node*left;
+node*right;
+
+node(int d){
+    data=d;
+    left=NULL;
+    right=NULL;
+}
+};
+
+node * buildtree(){
+    int d;
+    cout<<"Enter data to build tree  ((-1 for NULL)): "<<endl;
+    cin>>d;
+    if(d==-1){
+        return nullptr;
+    }
+    node * newnode=new node(d);
+    cout<<"Enter left child for "<<d<<" "<<endl;
+    newnode->left=buildtree();
+
+    cout<<"Enter right child for "<<d<<" "<<endl;
+    newnode->right=buildtree();
+
+    return newnode;
+}
+
+void inorder(node* root){
+    if(root==nullptr){
+        return;
+    }
+    inorder(root->left);
+    cout<<root->data<<" ";
+    inorder(root->right);
+}
+
+void countleaf(node* root,int &count){
+if(root==NULL){
+    return;
+}
+if(root->right==NULL && root->left==NULL){
+    count++;
+}
+countleaf(root->right,count);
+countleaf(root->left,count);
+}
+
+int main()
+{
+node* root=nullptr;
+root=buildtree();
+
+inorder(root);
+
+int c=0;
+
+countleaf(root,c);
+cout<<"Total Leaf:"<<c;
+
+return 0;
+}
+
+
+
+BT//
+
+//C++ Program starts
+#include<iostream>
+using namespace std;
+
+struct node{
+public:
+int data;
+node * left ;
+node * right;
+
+node(){
+    data=0;
+    left=NULL;
+    right=NULL;
+}
+
+node(int d){
+    data=d;
+    left=NULL;
+    right=NULL;
+}
+};
+
+
+node * buildtree(){
+int data;
+cout<<"Enter value to build tree ((-1 for NULL)) :"<<endl;
+cin>>data;
+if(data==-1){
+    return NULL;
+}
+
+node* newnode=new node(data);
+cout << "Enter the left child of " << data << ": ";
+newnode->left=buildtree();
+cout << "Enter the right child of " << data << ": ";
+newnode->right=buildtree();
+return newnode;
+}
+
+
+void preorder(node * root){
+    if(root==NULL){
+        return;
+    }
+cout<<root->data<<endl;
+preorder(root->left);
+preorder(root->right);
+}
+
+void inorder(node * root){
+    if(root==NULL){
+        return;
+    }
+inorder(root->left);
+cout<<root->data<<endl;
+inorder(root->right);
+}
+
+void postorder(node * root){
+    if(root==NULL){
+        return;
+    }
+postorder(root->left);
+postorder(root->right);
+cout<<root->data<<endl;
+}
+
+
+
+
+int main() {
+    node* root=NULL;
+    root = buildtree();
+    
+    cout << "In-order Traversal: ";
+    inorder(root);
+    cout << endl;
+
+    cout << "Pre-order Traversal: ";
+    preorder(root);
+    cout << endl;
+
+    cout << "Post-order Traversal: ";
+    postorder(root);
+    cout << endl;
+
+    return 0;
+}
+
+
+
+
+
